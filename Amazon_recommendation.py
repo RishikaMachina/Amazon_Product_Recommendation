@@ -10,14 +10,11 @@ spark = SparkSession.builder.appName("CMPE256_PROJECT").getOrCreate()
 
 #pre-processing
 df = spark.read.json("reviews_Movies_and_TV_5.json")
-print("####################### JSON file read#########################")
 df.printSchema()
 
 df = df.select('asin','reviewerID','overall')
 df.printSchema()
 df.show()
-
-print("################ cleaned data  #################")
 
 #encoding ID's to fit in model
 from pyspark.ml.feature import StringIndexer
@@ -44,16 +41,10 @@ indexedDf = indexedDf.select('asin','reviewerID','overall')
 
 indexedDf.show()
 
-print("#################################################################################################################################################################
-###############################################################################################")
 print(indexedDf.count())
-print("#################################################################################################################################################################
-################################################################################################")
 
 train,test=indexedDf.randomSplit([0.8,0.2])
-print("#################3train data set ####################")
 train.show()
-print("####################test data set #####################")
 test.show()
 
 als = ALS(rank=8,maxIter=4,regParam=0.04, userCol="reviewerID", itemCol="asin",ratingCol="overall", coldStartStrategy="nan")
@@ -62,28 +53,18 @@ model= als.fit(train)
 from pyspark.ml.evaluation import RegressionEvaluator
 
 predictions = model.transform(test)
-print("#####################################################################  showing predictions  ################################################################")
 predictions.show()
 
 evaluator = RegressionEvaluator(metricName="rmse", labelCol="overall", predictionCol="prediction")
 rmse = evaluator.evaluate(predictions)
-print("############################################################################################3 RMSE on test data #################################################
-############################################3###")
-
-print("################################################################################################################ Root-mean-square error =   " + str(rmse))
-
 #model
 als = ALS(rank=8,maxIter=4,regParam=0.04, userCol="reviewerID", itemCol="asin",ratingCol="overall", coldStartStrategy="nan")
 mymodel= als.fit(indexedDf)
 
-print("##################################                                            model built                                      ##################################
-################")
 
 userRecs = mymodel.recommendForAllUsers(10)
-print("################################  Generated top 10 product recommendations for each user  ################################################")
 
 ProductRecs = mymodel.recommendForAllItems(10)
-print("################################### Generated top 10 user recommendations for each movie ##############################################")
 
 
 userRecs.show()
