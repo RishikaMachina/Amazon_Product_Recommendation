@@ -6,7 +6,7 @@ from pyspark.sql.session import SparkSession
 from pyspark.sql import *
 import math
 
-spark = SparkSession.builder.appName("CMPE256_PROJECT").getOrCreate()
+spark = SparkSession.builder.appName("Amazon_Rec").getOrCreate()
 
 #pre-processing
 df = spark.read.json("reviews_Movies_and_TV_5.json")
